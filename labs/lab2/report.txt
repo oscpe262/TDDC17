@@ -1,0 +1,56 @@
+Q1. In the vacuum cleaner domain in part 1, what were the states and actions? What is the branching factor?
+
+A1. Actions: {GO_<direction>, SUCK_DIRT}
+    States: ########
+    Branching factor: ##########
+
+Q2. What is the difference between Breadth First Search and Uniform Cost Search in a domain where the cost
+    of each action is 1?
+
+A2. The implementation (FIFO queue vs priority queue). They behave in the same way though when the cost
+    is constant (e.g. the domain given in the question).
+
+Q3. Suppose that h1 and h2 are admissible heuristics (used in for example A*). Which of the following are
+    also admissible?
+    a) (h1+h2)/2
+    b) 2h1
+    c) max (h1,h2)
+
+A3. (a) and (c)
+
+Q4. If one would use A* to search for a path to one specific square in the vacuum domain, what could the
+    heuristic (h) be? The cost function (g)? Is it an admissible heuristic?
+
+A4. h: ⌊√(|Δx * Δy|)⌋ where Δ{x,y} is the distance from current position to target in the axis. (i.e.
+    manhattan distance)
+    g: #######
+    Admissable.
+    
+Q5. Draw and explain. Choose your three favorite search algorithms and apply them to any problem domain
+    it might be a good idea to use a domain where you can identify a good heuristic function). Draw the
+    search tree for them, and explain how they proceed in the searching. Also include the memory usage.
+    You can attach a hand-made drawing.
+
+A5. #########
+
+
+Q6. Look at all the offline search algorithms presented in chapter 3 plus A* search. Are they complete?
+    Are they optimal? Explain why!
+
+    Breadth-First - complete, optimal
+    Uniform-Cost - complete, optimal
+    Depth-First - neither
+    Depth-Limited - neither
+    Iterative-Deepening - complete, optimal
+    Bidirectional - complete, optimal
+    A* - complete, optimal
+
+    #########
+
+
+Q7. Assume that you had to go back and do Lab 1/Task 2 once more (if you did not use search already).
+    Remember that the agent did not have perfect knowledge of the environment but had to explore it
+    incrementally. Which of the search algorithms you have learned would be most suited in this situation
+    to guide the agent's execution? What would you search for? Give an example.
+
+########
