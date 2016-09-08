@@ -1,0 +1,16 @@
+1. bump med riktning öst → usväng höger
+2. bump med riktning väst → usväng vänster
+3. bump med rikting syd → vänd 180 grader och gå rakt fram
+4. bump med riktning norr → vänd
+
+
+1 - move, 2 - left, 3 - right, 4 - succ
+
+
+
+ACTIONS	BUMP
+1	1
+2	0
+1	0
+
+
