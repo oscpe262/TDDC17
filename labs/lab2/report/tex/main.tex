@@ -1,0 +1,88 @@
+\section{Q1.}
+\em In the vacuum cleaner domain in part 1, what were the states and actions? What is the branching factor?\em
+
+\emph{A1.} Actions: Removing a node from [frontier].\\
+    States: Positions in the grid\\
+    Branching factor: 4 - maximal possible numbers of branches from a node.\\
+
+\section{Q2.}
+\em What is the difference between Breadth First Search and Uniform Cost Search in a domain where the cost
+    of each action is 1?\em
+
+\emph{A2.} The implementation (FIFO queue vs priority queue). They behave in the same way though when the cost
+    is constant (e.g. the domain given in the question).
+
+\section{Q3.}
+\em Suppose that h1 and h2 are admissible heuristics (used in for example A*). Which of the following are
+    also admissible?\\
+    a) $(h1+h2)/2$\\
+    b) $2h1$\\
+    c) $\max(h1,h2)$\em
+
+\emph{A3.} (a) and (c)
+
+\section{Q4.}
+\em If one would use A* to search for a path to one specific square in the vacuum domain, what could the
+    heuristic (h) be? The cost function (g)? Is it an admissible heuristic?\em
+
+\emph{A4.}
+    $(h)$: $\sqrt{\Delta{}x\Delta{}y}$ where $\Delta{}\{x,y\}$ is the absolute distance from current
+    position to target in the axis (euclidian distance) is one possible heuristic which will always
+    underestimate the distance. The manhattan/taxicab distance $|\Delta x| + |\Delta y|$ is another
+    possible heuristic which in the given domain never will overestimate and most often underestimate.
+    Both are admissable in the given domain.\\
+    $(g)$: Any non-descending function. The depth of the node in the current search tree is a sensible option.
+
+\section{Q5.}
+\em Draw and explain. Choose your three favorite search algorithms and apply them to any problem domain
+    it might be a good idea to use a domain where you can identify a good heuristic function). Draw the
+    search tree for them, and explain how they proceed in the searching. Also include the memory usage.
+    You can attach a hand-made drawing.\em
+
+    \emph{A5.} Drawing included on page \pageref{fig:a51}. Memory usage is implicitly expressed in the number
+    of nodes mapped in the search tree.
+     \input{./tex/a5.tex}
+
+\section{Q6.}
+\em Look at all the offline search algorithms presented in chapter 3 plus A* search. Are they complete?
+    Are they optimal? Explain why!\em
+
+    \emph{A6.}
+    
+    \begin{tabular}{l|c|c}
+      Algorithm & Complete & Optimal \\
+      \hline
+      Breadth-First & Yes & Yes \\
+      Depth-First & No & No\\
+      Iterative-Deepening & Yes & Yes\\
+      Bidirectional & BFS & No\\
+      Greedy Best First & Graph & No\\
+      A* & Yes & Yes      
+    \end{tabular}
+
+    BFS is complete if the branching factor is finite and there is a solution, and it is optimal if the cost
+    is a non-decreasing function.
+
+    DFS is incomplete as it can get stuck in infinite branches.
+
+    Iterative Deepening Search is complete if the branching factor is finite, and it is optimal if the cost is
+    a non-decreasing function.
+
+    Bidirectional Search is implementation (DFS or BFS) dependent regarding completeness. It is not optimal
+    since the path found needs to be verified optimal.
+
+    For Greedy BFS, tree search is incomplete as it can get stuck in dead-end branches, but graph search is
+    complete thanks to keeping track of explored noted.
+
+    A* is complete. It requires the existence of a finite number of paths where the cost equals that of the
+    optimal path. It is optimal if the heuristic function is admissable.
+    
+\section{Q7.}
+\em Assume that you had to go back and do Lab 1/Task 2 once more (if you did not use search already).
+    Remember that the agent did not have perfect knowledge of the environment but had to explore it
+    incrementally. Which of the search algorithms you have learned would be most suited in this situation
+    to guide the agent's execution? What would you search for? Give an example.\em
+
+    \emph{A7.}
+    We did use search (BFS), even though either one could do the work in the given domain. The objective
+    would be to find that something doesn't exist in the domain, i.e. accessible unexplored nodes.
