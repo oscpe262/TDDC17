@@ -8,6 +8,11 @@ import aima.core.agent.Percept;
 import aima.core.agent.impl.*;
 
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List; 
+import java.util.Queue;
+import java.util.Vector; 
+import java.util.Iterator; 
 
 import java.util.Random;
 
@@ -100,6 +105,8 @@ class MyAgentState
 	    }
 		
 	}
+
+  
 	
 	public void updateWorld(int x_position, int y_position, int info)
 	{
@@ -137,54 +144,274 @@ class MyAgentProgram implements AgentProgram {
     public int iterationCounter = 450;
     public MyAgentState state = new MyAgentState();
 
-    public int phase = 0; // 0 - find top left, 1 - clean, 2 - go to home y axis, 3 - go home x axis
-    public int[] bounds = {0,0,0,0};
-    public int[] cl = {0,0};
-    public int[] cp = {0,0}; 
+    public int phase = 0; 
 
-    public int[] homeroute = {0,0}; //x,y
-    public Direction direction = Direction.values()[0]; 
+    public int[] cl = {0,0};
+    public int[] cp = {0,0};  
+    public List<Node> nodelist = new Vector<Node>();
+    public List<Node> goal; 
+
+
+
+    public class Node {
+	Node(int x, int y, Node parent) {
+	    x_ = x;
+	    y_ = y; 
+	    pathParent = parent; 
+
+	    nodelist.add(this);  
+	    int[] co = {x,y}; 
+
+
+	}
+
+
+	public void generateChildren()
+	{
+	    
+	    if(pathParent != null) {
+		if(state.world[x_][y_-1] != 1 
+		   && !existsC(x_, y_-1, nodelist)){
+		    		    
+		    neighbors.add(new Node(x_, y_-1, this)); 
+		}
+	
+		if(state.world[x_][y_+1] != 1 
+		   && !existsC(x_, y_+1, nodelist)){
+		    
+		    neighbors.add(new Node(x_, y_+1, this)); 
+		}
+	
+		if(state.world[x_-1][y_] != 1 
+		   && !existsC(x_-1, y_, nodelist)){
+
+		    neighbors.add(new Node(x_-1, y_, this)); 
+		}
+	
+		if(state.world[x_+1][y_] != 1 
+		   && !existsC(x_+1, y_, nodelist)){
+
+		    neighbors.add(new Node(x_+1, y_, this)); 
+		}
+	    }
+	    else{
+		if(state.world[x_][y_-1] != 1){
+
+		    neighbors.add(new Node(x_, y_-1, this)); 
+		}
+		if(state.world[x_][y_+1] != 1){
+
+		    neighbors.add(new Node(x_, y_+1, this));
+		}
+		if(state.world[x_-1][y_] != 1){
+
+		    neighbors.add(new Node(x_-1, y_, this)); 
+		}
+		if(state.world[x_+1][y_] != 1){
+
+		    neighbors.add(new Node(x_+1, y_, this)); 
+		}
+	    }
+
+	}
+  
+	int x_, y_; 
+	Vector neighbors = new Vector(4);
+	Node pathParent;
+
+    };
+
+
+
+    public boolean nodeEqual(Node a, Node b){
+	if(a.x_ == b.x_ && a.y_ == b.y_)
+	    return true;
+	return false; 
+    }
+    
+    public boolean cordEqual(Node a, int x, int y){
+	if(a.x_ == x && a.y_ == y)
+	    return true;
+	return false; 
+    }
+
+    // this function takes a list to see if there is a node in it with the same coordinates as the parameter node a, 
+    // treating nodes with same coordinates but different parent pointers as equal
+    public boolean exists(Node a, List<Node> list){
+	for(Node i : list)
+	    {
+		if ( nodeEqual(a, i) )
+		    return true; 
+	    }
+	return false; 
+    }
+
+    //checks a list for nodes which has the coordinates x y
+    public boolean existsC(int x, int y, List<Node> list){
+	for(Node i : list)
+	    {
+		if ( cordEqual(i, x, y) )
+		    return true; 
+	    }
+	return false; 
+    }
+
     public Boolean[] bumpseq = new Boolean[4];
     public int[] actions = new int[10]; // 1 - move, 2 - left, 3 - right, 4 - succ
 
 
+    public List constructPath(Node node) {
+	LinkedList path = new LinkedList();
+	while (node.pathParent != null) {
+	    path.addFirst(node);
+	    node = node.pathParent;
+	}
+	return path;
+    }
 
-
-    public void update_location(Direction dir, int[] currl){
   
-	switch (dir)  {
-	case EAST: ++currl[0];
-	    break;
-	case SOUTH: --currl[1];
-	    break;
-	case WEST: --currl[0];
-	    break;
-	case NORTH: ++currl[1];
-	    break;
+    public int directionToFrom(int x, int y, int x2, int y2)
+    {
+	if(x2<x)
+	    return 1;
+	if(x2>x)
+	    return 3;
+	if(y2>y)
+	    return 0;
+	if(y2<y)
+	    return 2;
+	return -1; 
+    }
+
+
+    // depending on the first node of l, determines the correct action to take 
+    public int pathToDestiny(List<Node> l){
+
+	Iterator i = l.iterator();
+
+	Node n;
+	if(i.hasNext())
+	    n = (Node)i.next(); 
+	else 
+	    return 0; 
+
+
+	int dir = directionToFrom(n.x_, n.y_, state.agent_x_position, state.agent_y_position);
+	
+	// do we need to turn? 
+	if ( state.agent_direction != dir ){
+	    // never rotate in a quarter circle
+	    if(dir - state.agent_direction == 1 || dir - state.agent_direction == -3) 
+		return 2;
+	    else
+		return 3;
+	}
+	else {
+	    // we don't need to turn, so move forward
+	    return 1; 
+	}
+
+    }
+
+
+
+
+
+    private void updateAll(DynamicPercept percept, int action){
+	//state.updatePosition(percept);
+	if(action==0) {
+	    state.agent_direction = ((state.agent_direction-1) % 4);
+	    if (state.agent_direction<0) 
+		state.agent_direction +=4;
+	    state.agent_last_action = state.ACTION_TURN_LEFT;
+	    return;// LIUVacuumEnvironment.ACTION_TURN_LEFT;
+	} else if (action==1) {
+	    state.agent_direction = ((state.agent_direction+1) % 4);
+	    state.agent_last_action = state.ACTION_TURN_RIGHT;
+	    return;// LIUVacuumEnvironment.ACTION_TURN_RIGHT;
+	} 
+	state.agent_last_action=state.ACTION_MOVE_FORWARD;
+	return;// LIUVacuumEnvironment.ACTION_MOVE_FORWARD;
+
+    }
+
+    public int findDirection(int[] parent, int[] child){
+	if(parent[1]-child[1]>0){ //norr
+	    return 0; 
+	}
+	if(parent[1]-child[1]<0){ //syd
+	    return 2; 
+	}
+	if(parent[0]-child[0]<0){
+	    return 1; 
+	}
+	if(parent[0]-child[0]>0){
+	    return 3; 
+	}
+
+	return -1; 
+    }
+
+
+
+
+    public List findClosestUnknown(Node startNode){
+	
+	Queue frontier = new LinkedList();
+	LinkedList explored = new LinkedList();
+	nodelist.clear(); 
+
+	int[] temp = {startNode.x_, startNode.y_}; 
+
+	frontier.add(startNode);
+
+
+
+	
+
+	while (!frontier.isEmpty()){
+	    Node node = (Node)frontier.remove(); 
+
+
+	    if (state.world[node.x_][node.y_] == 0) {
+		// path found!
+
+		return constructPath(node);
+
+	    }
+	    else {
+		explored.add(node);
+      
+		// add neighbors to the open list
+		 node.generateChildren(); 
+
+		if ( !node.neighbors.isEmpty() ) {
+
+		    Iterator i = node.neighbors.iterator();
+		    while (i.hasNext()) {
+			Node neighborNode = (Node)i.next();
+			if (!explored.contains(neighborNode) &&
+			    !frontier.contains(neighborNode)) 
+			    {
+				neighborNode.pathParent = node;
+				frontier.add(neighborNode);
+			    }
+		    }
+		}
+	    }
 	}
   
- 
-    }
-
-    public void update_bounds(int[] currl, int[] bnds){
-	
-
-	if(currl[0]>bnds[0]) //east
-	    bnds[0] = currl[0]; 
-	if(currl[1]<bnds[1]) //south
-	    bnds[1] = currl[1]; 
-	if(currl[0]<bnds[2]) //west
-	    bnds[2] = currl[0];
-	if(currl[1]>bnds[3]) //north 
-	    bnds[3] = currl[1];
-	
+	// no path found
+	return null;
     }
 
 
+   
+   
 
 	
-	// moves the Agent to a random start position
-	// uses percepts to update the Agent position - only the position, other percepts are ignored
+    // moves the Agent to a random start position
+    // uses percepts to update the Agent position - only the position, other percepts are ignored
 	// returns a random action
 	private Action moveToRandomStartPosition(DynamicPercept percept) {
 		int action = random_generator.nextInt(6);
@@ -222,9 +449,7 @@ class MyAgentProgram implements AgentProgram {
     	}
 		
     	// This example agent program will update the internal agent state while only moving forward.
-    	// START HERE - code below should be modified!
-
-    	    	
+    	// START HERE - code below should be modified! 	    	
     	System.out.println("x=" + state.agent_x_position);
     	System.out.println("y=" + state.agent_y_position);
     	System.out.println("dir=" + state.agent_direction);
@@ -235,20 +460,9 @@ class MyAgentProgram implements AgentProgram {
 	    if (iterationCounter==0)
 	    	return NoOpAction.NO_OP;
 
-	    //DynamicPercept p = (DynamicPercept) percept;
 	    DynamicPercept p = (DynamicPercept) percept;
 
-
-
-
-		
-	    //public Action execute(Percept percept) {
-			    
-		if(actions[0] == 1 && !bumpseq[0]) {
-		    update_location(direction, cl);
-		    update_bounds(cl, bounds); 
-		    System.out.println("updated location and bounds");
-		}
+	
 
 		if(actions[0] != 4){ //the succ doesn't affect pathfinding
 		    for( int i = 3; i >= 0; --i )
@@ -269,15 +483,6 @@ class MyAgentProgram implements AgentProgram {
 		bumpseq[0] = (Boolean)p.getAttribute("bump");
 		Boolean dirt = (Boolean)p.getAttribute("dirt");
 		Boolean home = (Boolean)p.getAttribute("home");
-
-		System.out.println("# cl");
-		System.out.println(cl[0]);
-		System.out.println(cl[1]);
-		System.out.println("# cp");
-		System.out.println(cp[0]);
-		System.out.println(cp[1]);
-
-
 
 
 
@@ -309,71 +514,124 @@ class MyAgentProgram implements AgentProgram {
 	    
 		// Next action selection based on the percept value
 		if (dirt.booleanValue()) {
+		    //there is no reason to not suck dirt if it's possible
 		    System.out.println("DIRT -> choosing SUCK action!");
+		    state.agent_last_action=state.ACTION_SUCK;
 		    return LIUVacuumEnvironment.ACTION_SUCK;
 		}else{
 
 		    switch (phase) {
 		    case 0: if(!bumpseq[0]){ //find a wall and turn left
 			    actions[0] = 1; 
+			    updateAll(p, 2); 
 			    return LIUVacuumEnvironment.ACTION_MOVE_FORWARD;
 			}
 			else{
 			    System.out.println("turn left");
 			    actions[0] = 2; 
 			    phase++; 
-			    System.out.println("#####we hit a wall, entering phase 1");
-			    cp[0] = cl[0]; 
-			    cp[1] = cl[1]; 
+			    //we hit a wall, so next step is to trace along the wall for 1 lap
+			    //phase denotes a change in strategy. 
 
-			    direction.dec(); 
+			    //remember these to know where we begun tracing (because this is where we stop)
+			    cp[0] = state.agent_x_position; 
+			    cp[1] = state.agent_y_position; 
+
+			    updateAll(p, 0); 
 			    return LIUVacuumEnvironment.ACTION_TURN_LEFT;
 			}
 
-			//trace the wall keeping to the right
+
 
 
 		    case 1: 
-			//we moved into our checkpoint, so next phase
-			if(Arrays.equals(cl, cp) && actions[1] == 1){
-			    System.out.println("#####standing on checkpoint, entering phase 2");
+			//this if statements is true if we moved into our checkpoint, so next phase
+			if(cp[0] == state.agent_x_position && cp[1] == state.agent_y_position && actions[1] == 1 && !bumpseq[0]){
 			    phase = 2; 
-			    return NoOpAction.NO_OP;
+			    updateAll(p, 0); 
+			    return LIUVacuumEnvironment.ACTION_TURN_LEFT;
 			}
 
-			//we bumped, then turned, so move
+			//we bumped, then turned away from the wall, so move
 			if(!bumpseq[0] && bumpseq[1]){ 
 			    actions[0] = 1; 
+			    updateAll(p, 2); 
 			    return LIUVacuumEnvironment.ACTION_MOVE_FORWARD;
 			}
 
-			//we moved and did not bump, so reface the wall
+			//we moved and did not bump, so reface the wall, to make sure the wall is not curving away from us
 			if(!bumpseq[0] && actions[1] == 1){
-			    System.out.println("turn right");
 			    actions[0] = 3; 
-			    direction.inc(); 
+			    updateAll(p, 1); 
 			    return LIUVacuumEnvironment.ACTION_TURN_RIGHT;
 			}
 
 			//we bumped, so turn away from the wall
 			if(bumpseq[0]){
-			    System.out.println("turn left");
-			    actions[0] = 2; 
-			    direction.dec(); 
+
+			    actions[0] = 2;  
+			    updateAll(p, 0); 
 			    return LIUVacuumEnvironment.ACTION_TURN_LEFT;
 			}
 
-
-
-			//
 			actions[0] = 1; 
+			updateAll(p, 2); 
 			return LIUVacuumEnvironment.ACTION_MOVE_FORWARD;
 		    case 2:
+
+
+			Node here = new Node(state.agent_x_position, state.agent_y_position, null); 
+			
+			//findClosestUnknown will return null if no unknown is found, otherwise it will return a list of nodes, 
+			//where the bottom of that list is an unknown node, and every list is pointing towards a walkable 
+			//neighbour, up to the node we're on
+			goal = findClosestUnknown(here); 
+			if(goal == null){
+			    System.out.println("apartment has been cleaned up, my dudes");
+			    break; 
+			    
+			}
+			else {
+
+			    //phase 3 is about converting a list of walkable nodes, to the actions required to walk along those
+			    phase = 3;
+			}
+
+		    case 3:
+			if(goal != null)
+			    {
+	
+				int action = pathToDestiny(goal); 
+				switch (action){
+				case 1:
+				    // if we move forward, remove the first node of the goal list (since it's traversed) 
+				    goal.remove(0); 
+				    updateAll(p, 2); 
+				    if(goal.isEmpty())
+					phase = 2; 
+				    return LIUVacuumEnvironment.ACTION_MOVE_FORWARD;
+				case 2:
+				    updateAll(p, 1); 
+				    return LIUVacuumEnvironment.ACTION_TURN_RIGHT;
+				case 3: 
+				    updateAll(p, 0); 
+				    return LIUVacuumEnvironment.ACTION_TURN_LEFT;
+				}
+			
+			    }
+			else 
+			    {
+				phase = 2; 
+				updateAll(p, 0);
+				return LIUVacuumEnvironment.ACTION_TURN_LEFT;
+			    }
+
+
 			break; 
 		    }
 		    return NoOpAction.NO_OP;
 		}
-		//}
+
 		
 	};
 }
@@ -386,3 +644,4 @@ public class MyVacuumAgent extends AbstractAgent {
 	}
     }
 }
+

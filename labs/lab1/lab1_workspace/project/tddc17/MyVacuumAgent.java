@@ -141,15 +141,13 @@ class MyAgentProgram implements AgentProgram {
     private Random random_generator = new Random();
 	
     // Here you can define your variables!
-    public int iterationCounter = 450;
+    public int iterationCounter = 99450;
     public MyAgentState state = new MyAgentState();
 
     public int phase = 0; 
-    public int[] bounds = {0,0,0,0}; //xmin xmax ymin ymax
 
     public int[] cl = {0,0};
-    public int[] cp = {0,0}; 
-    public int[] target = {0,0}; 
+    public int[] cp = {0,0};  
     public List<Node> nodelist = new Vector<Node>();
     public List<Node> goal; 
 
@@ -223,18 +221,22 @@ class MyAgentProgram implements AgentProgram {
 
     };
 
+
+
     public boolean nodeEqual(Node a, Node b){
 	if(a.x_ == b.x_ && a.y_ == b.y_)
 	    return true;
 	return false; 
     }
-
+    
     public boolean cordEqual(Node a, int x, int y){
 	if(a.x_ == x && a.y_ == y)
 	    return true;
 	return false; 
-    }
+	}
 
+    // this function takes a list to see if there is a node in it with the same coordinates as the parameter node a, 
+    // treating nodes with same coordinates but different parent pointers as equal
     public boolean exists(Node a, List<Node> list){
 	for(Node i : list)
 	    {
@@ -244,6 +246,7 @@ class MyAgentProgram implements AgentProgram {
 	return false; 
     }
 
+    //checks a list for nodes which has the coordinates x y
     public boolean existsC(int x, int y, List<Node> list){
 	for(Node i : list)
 	    {
@@ -251,10 +254,10 @@ class MyAgentProgram implements AgentProgram {
 		    return true; 
 	    }
 	return false; 
-    }
+	}
 
-    public int[] homeroute = {0,0}; //x,y
-	public Direction direction = Direction.values()[0]; 
+    // public int[] homeroute = {0,0}; //x,y
+    //	public Direction direction = Direction.values()[0]; 
 	public Boolean[] bumpseq = new Boolean[4];
 	public int[] actions = new int[10]; // 1 - move, 2 - left, 3 - right, 4 - succ
 
@@ -485,12 +488,12 @@ class MyAgentProgram implements AgentProgram {
 
 	    DynamicPercept p = (DynamicPercept) percept;
 
-		if(actions[0] == 1 && !bumpseq[0]) {
-		    update_location(direction, cl);
-		    update_bounds(state.agent_x_position, state.agent_y_position, bounds); 
+	    /*		if(actions[0] == 1 && !bumpseq[0]) {
+		    //update_location(direction, cl);
+		    //update_bounds(state.agent_x_position, state.agent_y_position, bounds); 
 		    System.out.println("updated location and bounds");
 		}
-
+	    */
 		if(actions[0] != 4){ //the succ doesn't affect pathfinding
 		    for( int i = 3; i >= 0; --i )
 			{
@@ -541,6 +544,7 @@ class MyAgentProgram implements AgentProgram {
 	    
 		// Next action selection based on the percept value
 		if (dirt.booleanValue()) {
+		    //there is no reason to not suck dirt if it's possible
 		    System.out.println("DIRT -> choosing SUCK action!");
 		    state.agent_last_action=state.ACTION_SUCK;
 		    return LIUVacuumEnvironment.ACTION_SUCK;
@@ -556,39 +560,38 @@ class MyAgentProgram implements AgentProgram {
 			    System.out.println("turn left");
 			    actions[0] = 2; 
 			    phase++; 
-			    System.out.println("#####we hit a wall, entering phase 1");
+			    //we hit a wall, so next step is to trace along the wall for 1 lap
+			    //phase denotes a change in strategy. 
+
+			    //remember these to know where we begun tracing (because this is where we stop)
 			    cp[0] = state.agent_x_position; 
 			    cp[1] = state.agent_y_position; 
 
-			    direction.dec(); 
 			    updateAll(p, 0); 
 			    return LIUVacuumEnvironment.ACTION_TURN_LEFT;
 			}
 
-			//trace the wall keeping to the right
+
 
 
 		    case 1: 
-			//we moved into our checkpoint, so next phase
+			//this if statements is true if we moved into our checkpoint, so next phase
 			if(cp[0] == state.agent_x_position && cp[1] == state.agent_y_position && actions[1] == 1 && !bumpseq[0]){
-	
 			    phase = 2; 
 			    updateAll(p, 0); 
 			    return LIUVacuumEnvironment.ACTION_TURN_LEFT;
 			}
 
-			//we bumped, then turned, so move
+			//we bumped, then turned away from the wall, so move
 			if(!bumpseq[0] && bumpseq[1]){ 
 			    actions[0] = 1; 
 			    updateAll(p, 2); 
 			    return LIUVacuumEnvironment.ACTION_MOVE_FORWARD;
 			}
 
-			//we moved and did not bump, so reface the wall
+			//we moved and did not bump, so reface the wall, to make sure the wall is not curving away from us
 			if(!bumpseq[0] && actions[1] == 1){
-	
 			    actions[0] = 3; 
-			    direction.inc(); 
 			    updateAll(p, 1); 
 			    return LIUVacuumEnvironment.ACTION_TURN_RIGHT;
 			}
@@ -596,15 +599,11 @@ class MyAgentProgram implements AgentProgram {
 			//we bumped, so turn away from the wall
 			if(bumpseq[0]){
 
-			    actions[0] = 2; 
-			    direction.dec(); 
+			    actions[0] = 2;  
 			    updateAll(p, 0); 
 			    return LIUVacuumEnvironment.ACTION_TURN_LEFT;
 			}
 
-
-
-			//
 			actions[0] = 1; 
 			updateAll(p, 2); 
 			return LIUVacuumEnvironment.ACTION_MOVE_FORWARD;
@@ -612,15 +611,19 @@ class MyAgentProgram implements AgentProgram {
 
 
 			Node here = new Node(state.agent_x_position, state.agent_y_position, null); 
+			
+			//findClosestUnknown will return null if no unknown is found, otherwise it will return a list of nodes, 
+			//where the bottom of that list is an unknown node, and every list is pointing towards a walkable 
+			//neighbour, up to the node we're on
 			goal = findClosestUnknown(here); 
 			if(goal == null){
-	System.out.println("apartment has been cleaned up my main man");
+			    System.out.println("apartment has been cleaned up, my dudes");
 			    break; 
 			    
 			}
 			else {
 
-			    
+			    //phase 3 is about converting a list of walkable nodes, to the actions required to walk along those
 			    phase = 3;
 			}
 
@@ -643,8 +646,6 @@ class MyAgentProgram implements AgentProgram {
 				case 3: 
 				    updateAll(p, 0); 
 				    return LIUVacuumEnvironment.ACTION_TURN_LEFT;
-					
-
 				}
 			
 			    }
@@ -652,7 +653,7 @@ class MyAgentProgram implements AgentProgram {
 			    {
 				phase = 2; 
 				updateAll(p, 0);
-				return LIUVacuumEnvironment.ACTION_TURN_LEFT; //FIXA SEN
+				return LIUVacuumEnvironment.ACTION_TURN_LEFT;
 			    }
 
 
@@ -660,7 +661,7 @@ class MyAgentProgram implements AgentProgram {
 		    }
 		    return NoOpAction.NO_OP;
 		}
-		//	}
+
 		
 	};
 }
@@ -673,75 +674,4 @@ public class MyVacuumAgent extends AbstractAgent {
 	}
     }
 }
-/*
-   public list findClosestUnknown(int direction, int[] from, int[] to){
-	
-	Queue<int[]> frontier = new LinkedList<int[]>();
-	LinkedList<int[]> explored = new LinkedList<int[]>();
-	//	tree_node t = new tree_node(); 
-	//frontier.add(t); 
-	frontier.add(from);
 
-	int[] temp = {from[0], from[1]};
-	int[] temp2 = {0,0}; 	
-	int[] child = {0,0}; 
-	int[] children = {0,0,0,0,0,0};
-	
-	//	if ( direction == 0 && state.world[temp[0]][temp[1]-1] != 1 )
-	//    {
-	while (!frontier.isEmpty()){
-	    temp2 = frontier.remove();
-	    explored.add(temp2); 
-	    findTheChildren(temp2, direction, children);
-	    for (int i = 0; i<3; ++i){
-		//add the children of temp2 to frontier
-		int[] temp3 = {children[2*i], children[(2*i)+1]}; 
-		if (state.world[temp3[0]][temp3[1]] != 1 && !explored.contains(temp3) && !frontier.contains(temp3) ){
-		    frontier.add(temp3); 
-		}
-		for (int[] j : frontier){
-		    if (state.world[j[0]][j[1]] == 0){
-			to[0] = j[0]; 
-			to[1] = j[1]; 
-			return true; 
-		    }
-		}
-	    }
-	    //	}
-	}
-
-	return false; //ingen unknown som kan nås genom promenad
-
-    }
-*/
-
-
-
-    /*    public void findTheChildren(int[] parent, int direction, int[] children){
-	for (int i = 0; i < 3; ++i){
-	    children[2*i] = parent[0]; 
-	    children[(2*i)+1] = parent[1]; 
-	}
-
-	switch (direction){
-	case 0: //north 
-	    children[1] = parent[1]-1; 
-	    children[2] = parent[0]-1;
-	    children[4] = parent[0]+1;
-	    break; 
-	case 1: //east
-	    children[0] = parent[0]+1; //x
-	    children[3] = parent[1]-1; 
-	    children[5] = parent[1]+1;
-	    break; 
-	case 2:  //south 
-	    children[1] = parent[1]+1; 
-	    children[2] = parent[0]+1;
-	    children[4] = parent[0]-1;
-	case 3: //west
-	    children[0] = parent[0]-1; //x
-	    children[3] = parent[1]+1; 
-	    children[5] = parent[1]-1;
-	}
-    }
-    */
