@@ -1,0 +1,96 @@
+\section{II : 5}
+\em a) What is the risk of melt-down in the power plant during a day if no observations have been made? \em
+
+$$P(Meltdown) = 0.02578$$
+
+\em What if there is icy weather?\em
+
+$$P(Meltdown|IcyWeather) = 0.03472$$
+
+\em b) Suppose that both warning sensors indicate failure. What is the risk of a meltdown in that case? Compare this result with the risk of a melt-down when there is an actual pump failure and water leak. What is the difference? The answers must be expressed as conditional probabilities of the observed variables, $P(Meltdown|...)$.\em
+
+$$P(Meltdown|PumpFailureWarning,WaterLeakWarning) = 0.14535$$
+
+$$P(Meltdown|PumpFailure,WaterLeak) = 0.2$$
+
+$$P(Meltdown|PumpFailure \land WaterLeak) = 0.2$$
+
+\em c) The conditional probabilities for the stochastic variables are often estimated by repeated experiments or observations. Why is it sometimes very difficult to get accurate numbers for these? What conditional probabilites in the model of the plant do you think are difficult or impossible to estimate?\em
+
+Estimations are dependent on large datasets. The warnings could possibly be triggered by failure emulation, and could be fairly easy to get reliable estimates for. The weather and water leaks could be harder depending on where the power station is located, and pump failures (given that they are uncommon) would be hard to get reliable estimates for, as well as meltdowns as they are (hopefully, and usually) very rare.
+
+\em d) Assume that the "IcyWeather" variable is changed to a more accurate "Temperature" variable instead (don't change your model). What are the different alternatives for the domain of this variable? What will happen with the probability distribution of $P(WaterLeak|Temperature)$ in each alternative? \em
+
+A ``generic'' $P(Temperature < 0)$ would give us a rough estimation, but more and finer ranges in common ranges would give an increased possibility for more exact estimations since a temperature of -20 most likely means that it has been cold for a longer time and will remain so for a while more, increasing the risk of waterleaks compared to a temperature of -1. This would let the probability distribution span between several discrete values rather than the current $\{.1,.2\}$.
+
+\section {II : 6}
+\em a) What does a probability table in a Bayesian network represent?\em
+ The probability table represent the probability of possible states in a node depending on its dependencies' states if such exists. If no dependecies, it shows the probability of possible states depending on randomness or unknown factors (such as IcyWeather: we don't know/care what actually causes---well, sub-zero temperatures, but ...--- it, we just care that it is a 5\% chance of IcyWeather).
+
+\em b) What is a joint probability distribution? Using the chain rule on the structure of the Bayesian network to rewrite the joint distribution as a product of P(child|parent) expressions, calculate manually the particular entry in the joint distribution of P(Meltdown=F, PumpFailureWarning=F, PumpFailure=F, WaterLeakWaring=F, WaterLeak=F, IcyWeather=F). Is this a common state for the nuclear plant to be in?\em
+
+A joint probability distribution gives the probability of each state for given variables. For $n$ variables, each entry in an $n$-dimensional matrix represent one atomic state.
+$$  P(X_1,X_2,\dots,X_n) = \prod_{i=1}^{n} P(X_i|X_{i-1},\dots,X_1 $$
+
+\begin{align*}
+  & P(\neg M, \neg PFW, \neg PF, \neg WLW, \neg WL, \neg IW) \\
+  = & P(\neg M|\neg PFW, \neg PF, \neg WLW, \neg WL, \neg IW)\cdot\\
+  & P(\neg PFW | \neg PF, \neg WLW, \neg WL, \neg IW)\cdot P(\neg PF | \neg WLW, \neg WL, \neg IW)\cdot\\
+  & P(\neg WLW | \neg WL, \neg IW)\cdot P(\neg WL | \neg IW)\cdot P(\neg IW)\\
+  = & P(\neg M | \neg PF, \neg WL)\cdot P(\neg PFW | \neg PF)\cdot P(\neg PF)P(\neg WLW | \neg WL)\cdot
+  \\ & P(\neg WL | \neg IW)P(\neg IW)\\
+  = & 0.999\cdot0.95\cdot0.9\cdot0.95\cdot0.9\cdot0.95 = 0.69378
+\end{align*}
+
+\em c) What is the probability of a meltdown if you know that there is both a water leak and a pump failure? Would knowing the state of any other variable matter? Explain your reasoning!\em
+
+The probability of $P(Meltdown|PumpFailure, WaterLeak)$ is 0.2 according to the probability table. $Meltdown$ is only conditionally dependent on $PumpFailure$ and $WaterLeak$, i.e. not dependent on any other variable. Hence, states of any other variable does not matter, which is as it should ... A warning light does not cause a meltdown, but the cause of the warning light might, and waterleaks could occur due to other reasons than frozen pipes.
+
+\em d) Calculate manually the probability of a meltdown when you happen to know that PumpFailureWarning=F, WaterLeak=F, WaterLeakWarning=F and IcyWeather=F but you are not really sure about a pump failure. \em
+\newpage
+
+Inference by Enumeration
+$$P(X|e) = \alpha\cdot P(X,e) = \alpha\cdot\sum_{y}P(X,e,y)$$
+
+$X = \{Meltdown\}\\E=\{PumpFailureWarning, WaterLeak, WaterLeakWarning, IcyWeater\}\\e=\{\neg PFW, \neg WL, \neg WLW,\neg IW\}\\Y=\{PumpFailure\}$
+
+\begin{align*}
+  & P(X|e) = \alpha\cdot P(X,e) = \alpha\cdot\sum_{y}P(X,e,y)\\
+  = & \alpha\cdot\sum_{PF}(P(M|PF=pf,\neg wl)\cdot
+  P(\neg pfw | PF = pf)\cdot
+  P(PF=pf)\cdot
+  P(\neg wlw | \neg wl)\cdot
+  P(\neg wl | \neg iw)\cdot
+  P(\neg iw))\\
+  = & \alpha\cdot \underbrace{P(\neg wlw | \neg wl)\cdot P(\neg wl | \neg iw)\cdot P(\neg iw)}_{\mathrm{const}}\cdot
+  \sum_{pf}(P(M|PF = pf,\neg wl)\cdot
+  P(\neg pfw|PF=pf)\cdot P(PF=pf))\\
+  = & \alpha\cdot(P(M|pf,\neg wl)\cdot P(\neg pfw|pf)\cdot P(pf)
+  + P(M|\neg pf, \neg wl)\cdot P(\neg pfw| \neg pf)\cdot P(\neg pf))\\
+  = & \alpha\cdot((\langle 0.15,0.85\rangle \cdot 0.1\cdot 0.1)+(\langle 0.001, 0.999\rangle \cdot 0.95 \cdot 0.9))
+  = \alpha\cdot\langle 0.00236,0.86265 \rangle\\
+  = & \frac{\langle 0.00236,0.86265 \rangle}{0.00236+0.86265} = \langle 0.00272,0.99728  \rangle
+\end{align*}
+
+\section{III : 1}
+Model the car with the applet tool and integrate it with the model of the plant.
+
+\input{./tex/31.tex}
+
+\em a) During the lunch break, the owner tries to show off for his employees by demonstrating the many features of his car stereo. To everyone's disappointment, it doesn't work. How did the owner's chances of surviving the day change after this observation?\em
+
+A radio that does not work is bad mojo, it might mean that the battery is out of juice which would reduces the probability of survival. Somewhat counter-intuitive to the commons, it decreases the probability from 0.99001 to 0.98116. Bayes' Theorem gives us: $$P(Battery|\neg Radio) = \frac{P(\neg Radio|Battery)P(Battery)}{P(\neg Radio)}$$
+
+\em b) The owner buys a new bicycle that he brings to work every day. The bicycle has the following properties:
+\begin{itemize}
+  \item $P(BicycleWorks) = 0.9$
+  \item $P(Survives | \neg Moves \land Meltdown \land BicycleWorks) = 0.6$
+  \item $P(Survives | Moves \land Meltdown \land BicycleWorks) = 0.9$
+\end{itemize}
+How does the bicycle change the owner's chances of survival? \em
+
+The bicycle adds a component of redundancy to the possibilities of escape. Adding up the numbers, the survivability from 0.99001 to 0.99505.
+
+\em c) It is possible to model any function in propositional logic with Bayesian Networks. What does this fact say about the complexity of exact inference in Bayesian Networks? What alternatives are there to exact inference? \em
+
+In \emph{singly connected} Bayesian networks, the time and space complexity is linear to the size of the network. In \emph{multiply connected} networks, complexity is exponential. Alternatives to exact inference are \emph{approximate inference} methods. Using randomized samples, the accuracy is depending on the amount of generated samples.
