@@ -1,0 +1,16 @@
+Lab report
+
+For exercise 1-1, in which the goal is cleaning up a rectangular room with no obstacles, our agent starts off by walking forward until he hits a wall. He then makes a left turn until he hits another wall. This way he knows that he's standing in a corner. 
+
+We have defined an int called phase, which describes in which phase of strategy the agent is currently on. Finding the corner is a phase. Next, cleaning the room is a phase. 
+
+He'll make another left turn, so that he is facing parallel to one of the walls. Let's call this the top wall. From now on, he just walks straight ahead, and make a U-turn whenever he hits something, alternating between a U-turn to the left and to the right. A U-turn here is two rotate actions in the same direction, separated by a move action. (For example: Turn left, move forward, turn left) He has a variable for remembering which direction his last U-turn was. This way he'll know that he will always U-Turn away from the top wall. 
+
+He has a way to figure out wether or not he hit the wall opposite to the top wall. To do this, he has to move when he is facing away from the top wall. The only time he does this is with the move in the middle of a U-turn. Whenever he bumps after moving forward in a U-turn, he'll change phase again. His aim is now to find his home. Since he only U-turns when he hits a vertical wall, and changed phase by hitting the bottom wall which is horizontal, he's standing in a corner. He'll rotate 90 degrees, and walk forward for as many times as his Y-position counter determines. Good thing he remembers how many times he moved vertically, and in what direction. 
+
+When he hits the correct Y-coordinate, he'll be standing right next to a wall (since he was in a corner and has only moved by one axis). He will face away from the wall, and walk forward, constantly checking his Home-sense, stopping only when it tingles. 
+
+
+In exercise 1-2 obstacles where added. Our agent still has strategic phases. The first in which he will move forward untill he hits a wall. He will then take a walk along the walls of the room, adjusting his course by bumping in to the wall along the way. This was added before we realised how to properly search for unknown tiles. We kept it in because it's a decent way to systematically find many unknowns close to each other. Whereas the breadth first search, which we'll discuss shortly, is good for finding a single close by unknown without taking into consideration what to do after that.
+
+He'll remember where he first bumped into the wall, and whenever he walks into that coordinate again he'll change phases. The next phase is finding unknowns with breadth first search until there are no more unknowns that are accessible by walking, such as the unknowns circled by walls. Whenever the search considers every walkable floor tile without finding an unknown, the cleaning duty is considered complete. Our little vacuum cleaner does not search for his home tile after finishing.
