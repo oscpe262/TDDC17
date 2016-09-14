@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<BIF VERSION="0.3"  xmlns="http://www.cs.ubc.ca/labs/lci/fopi/ve/XMLBIFv0_3"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.cs.ubc.ca/labs/lci/fopi/ve/XMLBIFv0_3 http://www.cs.ubc.ca/labs/lci/fopi/ve/XMLBIFv0_3/XMLBIFv0_3.xsd">
+<NETWORK>
+<NAME>Nuclear Power Station</NAME>
+<PROPERTY>short = </PROPERTY>
+<PROPERTY>detailed = </PROPERTY>
+
+<VARIABLE TYPE="nature">
+	<NAME>WaterLeak</NAME>
+	<OUTCOME>T</OUTCOME>
+	<OUTCOME>F</OUTCOME>
+	<PROPERTY>position = (8197.5498046875, 5310.7783203125)</PROPERTY>
+</VARIABLE>
+
+<VARIABLE TYPE="nature">
+	<NAME>WaterLeakWarning</NAME>
+	<OUTCOME>T</OUTCOME>
+	<OUTCOME>F</OUTCOME>
+	<PROPERTY>position = (8324.072265625, 5527.36572265625)</PROPERTY>
+</VARIABLE>
+
+<VARIABLE TYPE="nature">
+	<NAME>IcyWeather</NAME>
+	<OUTCOME>T</OUTCOME>
+	<OUTCOME>F</OUTCOME>
+	<PROPERTY>position = (8197.5498046875, 5113.490234375)</PROPERTY>
+</VARIABLE>
+
+<VARIABLE TYPE="nature">
+	<NAME>PumpFailure</NAME>
+	<OUTCOME>T</OUTCOME>
+	<OUTCOME>F</OUTCOME>
+	<PROPERTY>position = (7772.95166015625, 5306.48974609375)</PROPERTY>
+</VARIABLE>
+
+<VARIABLE TYPE="nature">
+	<NAME>PumpFailureWarning</NAME>
+	<OUTCOME>T</OUTCOME>
+	<OUTCOME>F</OUTCOME>
+	<PROPERTY>position = (7648.57470703125, 5523.0771484375)</PROPERTY>
+</VARIABLE>
+
+<VARIABLE TYPE="nature">
+	<NAME>Meltdown</NAME>
+	<OUTCOME>T</OUTCOME>
+	<OUTCOME>F</OUTCOME>
+	<PROPERTY>position = (7955.228515625, 5722.50927734375)</PROPERTY>
+</VARIABLE>
+
+<VARIABLE TYPE="nature">
+	<NAME>TakesProperAction</NAME>
+	<OUTCOME>T</OUTCOME>
+	<OUTCOME>F</OUTCOME>
+	<PROPERTY>position = (8167.0, 5692.0)</PROPERTY>
+</VARIABLE>
+
+<VARIABLE TYPE="nature">
+	<NAME>WearsGlasses</NAME>
+	<OUTCOME>T</OUTCOME>
+	<OUTCOME>F</OUTCOME>
+	<PROPERTY>position = (8443.0, 5639.0)</PROPERTY>
+</VARIABLE>
+
+<VARIABLE TYPE="nature">
+	<NAME>Reacts</NAME>
+	<OUTCOME>T</OUTCOME>
+	<OUTCOME>F</OUTCOME>
+	<PROPERTY>position = (8497.0, 5462.0)</PROPERTY>
+</VARIABLE>
+
+<VARIABLE TYPE="nature">
+	<NAME>HSAwake</NAME>
+	<OUTCOME>T</OUTCOME>
+	<OUTCOME>F</OUTCOME>
+	<PROPERTY>position = (8615.0, 5520.0)</PROPERTY>
+</VARIABLE>
+
+<DEFINITION>
+	<FOR>WaterLeak</FOR>
+	<GIVEN>IcyWeather</GIVEN>
+	<TABLE>0.2 0.8 0.1 0.9</TABLE>
+</DEFINITION>
+
+<DEFINITION>
+	<FOR>WaterLeakWarning</FOR>
+	<GIVEN>WaterLeak</GIVEN>
+	<TABLE>0.9 0.1 0.05 0.95</TABLE>
+</DEFINITION>
+
+<DEFINITION>
+	<FOR>IcyWeather</FOR>
+	<TABLE>0.05 0.95</TABLE>
+</DEFINITION>
+
+<DEFINITION>
+	<FOR>PumpFailure</FOR>
+	<TABLE>0.1 0.9</TABLE>
+</DEFINITION>
+
+<DEFINITION>
+	<FOR>PumpFailureWarning</FOR>
+	<GIVEN>PumpFailure</GIVEN>
+	<TABLE>0.9 0.1 0.05 0.95</TABLE>
+</DEFINITION>
+
+<DEFINITION>
+	<FOR>Meltdown</FOR>
+	<GIVEN>WaterLeak</GIVEN>
+	<GIVEN>PumpFailure</GIVEN>
+	<GIVEN>TakesProperAction</GIVEN>
+	<TABLE>0.02 0.98 0.2 0.8 0.01 0.99 0.1 0.9 0.015 0.985 0.15 0.85 0.001 0.999 0.001 0.999</TABLE>
+</DEFINITION>
+
+<DEFINITION>
+	<FOR>TakesProperAction</FOR>
+	<GIVEN>WearsGlasses</GIVEN>
+	<GIVEN>Reacts</GIVEN>
+	<TABLE>0.6 0.4 0.0 1.0 0.5 0.5 0.0 1.0</TABLE>
+</DEFINITION>
+
+<DEFINITION>
+	<FOR>WearsGlasses</FOR>
+	<TABLE>0.5 0.5</TABLE>
+</DEFINITION>
+
+<DEFINITION>
+	<FOR>Reacts</FOR>
+	<GIVEN>WaterLeakWarning</GIVEN>
+	<GIVEN>PumpFailureWarning</GIVEN>
+	<GIVEN>HSAwake</GIVEN>
+	<TABLE>0.7 0.3 0.0 1.0 0.8 0.2 0.0 1.0 0.8 0.2 0.0 1.0 0.01 0.99 0.0 1.0</TABLE>
+</DEFINITION>
+
+<DEFINITION>
+	<FOR>HSAwake</FOR>
+	<TABLE>0.5 0.5</TABLE>
+</DEFINITION>
+</NETWORK>
+</BIF>

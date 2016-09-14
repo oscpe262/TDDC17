@@ -9,11 +9,9 @@ $$P(Meltdown|IcyWeather) = 0.03472$$
 
 \begin{framed}\em b) Suppose that both warning sensors indicate failure. What is the risk of a meltdown in that case? Compare this result with the risk of a melt-down when there is an actual pump failure and water leak. What is the difference? The answers must be expressed as conditional probabilities of the observed variables, $P(Meltdown|...)$.\em\end{framed}
 
-$$P(Meltdown|PumpFailureWarning,WaterLeakWarning) = 0.14535$$
+$$P(Meltdown|PumpFailureWarning=T,WaterLeakWarning=T) = 0.14535$$
 
-$$P(Meltdown|PumpFailure,WaterLeak) = 0.2$$
-
-$$P(Meltdown|PumpFailure \land WaterLeak) = 0.2$$
+$$P(Meltdown|PumpFailure=T,WaterLeak=T) = 0.2$$
 
 \begin{framed}\em c) The conditional probabilities for the stochastic variables are often estimated by repeated experiments or observations. Why is it sometimes very difficult to get accurate numbers for these? What conditional probabilites in the model of the plant do you think are difficult or impossible to estimate?\em\end{framed}
 
@@ -21,7 +19,7 @@ Estimations are dependent on large datasets. The warnings could possibly be trig
 
 \begin{framed}\em d) Assume that the "IcyWeather" variable is changed to a more accurate "Temperature" variable instead (don't change your model). What are the different alternatives for the domain of this variable? What will happen with the probability distribution of $P(WaterLeak|Temperature)$ in each alternative? \em\end{framed}
 
-A ``generic'' $P(Temperature < 0)$ would give us a rough estimation, but more and finer ranges in common ranges would give an increased possibility for more exact estimations since a temperature of -20 most likely means that it has been cold for a longer time and will remain so for a while more, increasing the risk of waterleaks compared to a temperature of -1. This would let the probability distribution span between several discrete values rather than the current $\{.1,.2\}$.
+A ``generic'' $P(Temperature < 0)$ would give us a rough estimation, but more and finer ranges in common ranges would give an increased possibility for more exact estimations since a temperature of -20 most likely means that it has been cold for a longer time and will remain so for a while more, increasing the risk of waterleaks compared to a temperature of -1. This would let the probability distribution span between several discrete values rather than the current $\{.1,.2\}$. Combined with a ``over-time'' solution like the one we present on page \pageref{42}, we can increase the accuracy further, but that's another story.
 
 \section {II : 6}
 \begin{framed}\em a) What does a probability table in a Bayesian network represent?\em\end{framed}
@@ -30,7 +28,7 @@ A ``generic'' $P(Temperature < 0)$ would give us a rough estimation, but more an
 \begin{framed}\em b) What is a joint probability distribution? Using the chain rule on the structure of the Bayesian network to rewrite the joint distribution as a product of P(child|parent) expressions, calculate manually the particular entry in the joint distribution of P(Meltdown=F, PumpFailureWarning=F, PumpFailure=F, WaterLeakWaring=F, WaterLeak=F, IcyWeather=F). Is this a common state for the nuclear plant to be in?\em\end{framed}
 
 A joint probability distribution gives the probability of each state for given variables. For $n$ variables, each entry in an $n$-dimensional matrix represent one atomic state.
-$$  P(X_1,X_2,\dots,X_n) = \prod_{i=1}^{n} P(X_i|X_{i-1},\dots,X_1 $$
+$$  P(X_1,X_2,\dots,X_n) = \prod_{i=1}^{n} P(X_i|X_{i-1},\dots,X_1) $$
 
 \begin{align*}
   & P(\neg M, \neg PFW, \neg PF, \neg WLW, \neg WL, \neg IW) \\
@@ -52,7 +50,7 @@ The probability of $P(Meltdown|PumpFailure, WaterLeak)$ is 0.2 according to the 
 Inference by Enumeration
 $$P(X|e) = \alpha\cdot P(X,e) = \alpha\cdot\sum_{y}P(X,e,y)$$
 
-$X = \{Meltdown\}\\E=\{PumpFailureWarning, WaterLeak, WaterLeakWarning, IcyWeater\}\\e=\{\neg PFW, \neg WL, \neg WLW,\neg IW\}\\Y=\{PumpFailure\}$
+$X = \{Meltdown\}\\E=\{PumpFailureWarning, WaterLeak, WaterLeakWarning, IcyWeather\}\\e=\{\neg pfw, \neg wl, \neg wlw,\neg iw\}\\Y=\{PumpFailure\}$
 
 \begin{align*}
   & P(X|e) = \alpha\cdot P(X,e) = \alpha\cdot\sum_{y}P(X,e,y)\\
@@ -103,7 +101,14 @@ Model - see figure \ref{figHS}.
 \section{IV : 2}
 \begin{framed}\em The owner had an idea that instead of employing a safety person, to replace the pump with a better one. Is it possible, in your model, to compensate for the lack of Mr H.S.'s expertise with a better pump?\em \end{framed}
 
-%%%
+Yes. The probabilities of a meltdown are as follows:
+
+\begin{tabular}{l|l|l}
+  & Old Pump & New Pump\\
+  w/o H.S. & 0.02578 & 0.01859\\
+  with H.S & 0.02133 & N/A
+\end{tabular}
+
 
 \begin{framed}\em Mr H.S. fell asleep on one of the plant's couches. When he wakes up he hears someone scream: "There is one or more warning signals beeping in your control room!". Mr H.S. realizes that he does not have time to fix the error before it is to late (we can assume that he wasn't in the control room at all). What is the chance of survival for Mr H.S. if he has a car with the same properties as the owner? Hint: This question involves a disjunction (A or B) which can not be answered by querying the network as is. How could you answer such questions? Maybe something could be added or modified in the network.\em\end{framed}
 
@@ -114,6 +119,6 @@ Model - see figure \ref{figHS}.
 
 %%%
 
-\begin{framed}\em Describe how you would model a more dynamic world where for example the "IcyWeather" is more likely to be true the next day if it was true the day before. You only have to consider a limited sequence of days.\em\end{framed}
+\begin{framed}\em Describe how you would model a more dynamic world where for example the "IcyWeather" is more likely to be true the next day if it was true the day before. You only have to consider a limited sequence of days.\em\label{42}\end{framed}
 
 It would be reasonable to assume that cold enough days are not randomly distributed over the year but gathered in chunks of time which we usually refers to as ``seasons''. Hence, IcyWeather could be expanded to $n$ single connected nodes, representing the days $\{t+1, t, t-1, ... t-n\}$ where $t$ is today. A $IcyWeather=T$ observation closer in time should then have a larger impact on the possibility of $IcyWeather$ for $t+1$ to be true.
