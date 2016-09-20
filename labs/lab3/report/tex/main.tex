@@ -51,20 +51,21 @@ Inference by Enumeration
 $$P(X|e) = \alpha\cdot P(X,e) = \alpha\cdot\sum_{y}P(X,e,y)$$
 
 $X = \{Meltdown\}\\E=\{PumpFailureWarning, WaterLeak, WaterLeakWarning, IcyWeather\}\\e=\{\neg pfw, \neg wl, \neg wlw,\neg iw\}\\Y=\{PumpFailure\}$
+%alpha
 
 \begin{align*}
-  & P(X|e) = \alpha\cdot P(X,e) = \alpha\cdot\sum_{y}P(X,e,y)\\
-  = & \alpha\cdot\sum_{PF}(P(M|PF=pf,\neg wl)\cdot
+  & \textbf{P}(X|e) = \alpha\cdot \textbf{P}(X,e) = \alpha\cdot\sum_{y}\textbf{P}(X,e,y)\\
+  = & \alpha\cdot\sum_{PF}(\textbf{P}(M|PF=pf,\neg wl)\cdot
   P(\neg pfw | PF = pf)\cdot
-  P(PF=pf)\cdot
+  \textbf{P}(PF=pf)\cdot
   P(\neg wlw | \neg wl)\cdot
   P(\neg wl | \neg iw)\cdot
   P(\neg iw))\\
   = & \alpha\cdot \underbrace{P(\neg wlw | \neg wl)\cdot P(\neg wl | \neg iw)\cdot P(\neg iw)}_{\mathrm{const}}\cdot
-  \sum_{pf}(P(M|PF = pf,\neg wl)\cdot
-  P(\neg pfw|PF=pf)\cdot P(PF=pf))\\
-  = & \alpha\cdot(P(M|pf,\neg wl)\cdot P(\neg pfw|pf)\cdot P(pf)
-  + P(M|\neg pf, \neg wl)\cdot P(\neg pfw| \neg pf)\cdot P(\neg pf))\\
+  \sum_{pf}(\textbf{P}(M|PF = pf,\neg wl)\cdot
+  P(\neg pfw|PF=pf)\cdot \textbf{P}(PF=pf))\\
+  = & \alpha\cdot(\textbf{P}(M|pf,\neg wl)\cdot P(\neg pfw|pf)\cdot P(pf)
+  + \textbf{P}(M|\neg pf, \neg wl)\cdot P(\neg pfw| \neg pf)\cdot P(\neg pf))\\
   = & \alpha\cdot((\langle 0.15,0.85\rangle \cdot 0.1\cdot 0.1)+(\langle 0.001, 0.999\rangle \cdot 0.95 \cdot 0.9))
   = \alpha\cdot\langle 0.00236,0.86265 \rangle\\
   = & \frac{\langle 0.00236,0.86265 \rangle}{0.00236+0.86265} = \langle 0.00272,0.99728  \rangle
@@ -93,7 +94,7 @@ The bicycle adds a component of redundancy to the possibilities of escape. Addin
 \begin{framed}\em c) It is possible to model any function in propositional logic with Bayesian Networks. What does this fact say about the complexity of exact inference in Bayesian Networks? What alternatives are there to exact inference? \em\end{framed}
 
 In \emph{singly connected} Bayesian networks, the time and space complexity is linear to the size of the network. In \emph{multiply connected} networks, complexity is exponential. Alternatives to exact inference are \emph{approximate inference} methods. Using randomized samples, the accuracy is depending on the amount of generated samples.
-
+\newpage
 \section{IV : 1}
 Model - see figure \ref{figHS}.
 \input{./tex/41.tex}
@@ -108,17 +109,21 @@ Yes. The probabilities of a meltdown are as follows:
   w/o H.S. & 0.02578 & 0.01859\\
   with H.S & 0.02133 & N/A
 \end{tabular}
-
+\vspace{.5cm}
 
 \begin{framed}\em Mr H.S. fell asleep on one of the plant's couches. When he wakes up he hears someone scream: "There is one or more warning signals beeping in your control room!". Mr H.S. realizes that he does not have time to fix the error before it is to late (we can assume that he wasn't in the control room at all). What is the chance of survival for Mr H.S. if he has a car with the same properties as the owner? Hint: This question involves a disjunction (A or B) which can not be answered by querying the network as is. How could you answer such questions? Maybe something could be added or modified in the network.\em\end{framed}
+\vspace{.5cm}
 
-%%%
+We chose to include a node (Warning) which depends on if any warning light is observed (P=1 if so). Assuming ($\neg HSAwake$) and $Warning$ and no other observations, his survival probability would sum up to $P=0.96518$.
+\vspace{.5cm}
 
 \begin{framed}\em What unrealistic assumptions do you make when creating a Bayesian Network model of a person?\em\end{framed}
+\vspace{.5cm}
 
+  We assume the person has no sudden unforeseen medical or mental changes. Mr.HS could for example have a stroke and be unable to react to the warning lights, despite never having had a stroke before. We also assume he doesn't get better at doing his job. A few years of experience should unavoidably add to his ability to react correctly to the warning lights. In our model it does not. In the previous question we assume that he knows how to drive, and drive well enough under stress. All and all, the people in the bayesian networks covered in this lab are heavily simplified.
 
-%%%
-
+\vspace{.5cm}
 \begin{framed}\em Describe how you would model a more dynamic world where for example the "IcyWeather" is more likely to be true the next day if it was true the day before. You only have to consider a limited sequence of days.\em\label{42}\end{framed}
+\vspace{.5cm}
 
-It would be reasonable to assume that cold enough days are not randomly distributed over the year but gathered in chunks of time which we usually refers to as ``seasons''. Hence, IcyWeather could be expanded to $n$ single connected nodes, representing the days $\{t+1, t, t-1, ... t-n\}$ where $t$ is today. A $IcyWeather=T$ observation closer in time should then have a larger impact on the possibility of $IcyWeather$ for $t+1$ to be true.
+It would be reasonable to assume that cold enough days are not randomly distributed over the year but gathered in chunks of time which we usually refer to as ``seasons''. Hence, IcyWeather could be expanded to $n$ single connected nodes, representing the days $\{t+1, t, t-1, ... t-n\}$ where $t$ is today and let $t$ depend on previous days' observations. A $IcyWeather=T$ observation closer in time should then have a larger impact on the possibility of $IcyWeather$ for $t+1$ to be true.
