@@ -61,7 +61,9 @@ $X = \{Meltdown\}\\E=\{PumpFailureWarning, WaterLeak, WaterLeakWarning, IcyWeath
   P(\neg wlw | \neg wl)\cdot
   P(\neg wl | \neg iw)\cdot
   P(\neg iw))\\
-  = & \alpha\cdot \underbrace{P(\neg wlw | \neg wl)\cdot P(\neg wl | \neg iw)\cdot P(\neg iw)}_{\mathrm{const}}\cdot
+  = & \alpha\cdot %\underbrace{
+  P(\neg wlw | \neg wl)\cdot P(\neg wl | \neg iw)\cdot P(\neg iw)
+  %}_{\mathrm{const}}\cdot
   \sum_{pf}(\textbf{P}(M|PF = pf,\neg wl)\cdot
   P(\neg pfw|PF=pf)\cdot \textbf{P}(PF=pf))\\
   = & \alpha\cdot(\textbf{P}(M|pf,\neg wl)\cdot P(\neg pfw|pf)\cdot P(pf)
