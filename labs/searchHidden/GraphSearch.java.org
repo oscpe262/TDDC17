@@ -1,0 +1,106 @@
+package search;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+
+public class GraphSearch implements SearchFunction {
+
+    private ArrayList path;
+    protected HashSet closed;
+    private NodeQueue queue;
+    protected OrderingFunction of;
+    protected int maxDepth = -1;
+
+    public GraphSearch(OrderingFunction func) {
+        of = func;
+        closed = new HashSet();
+    }
+    public GraphSearch(int _maxDepth, OrderingFunction func) {
+        maxDepth = _maxDepth;
+        of = func;
+    }
+    /* (non-Javadoc)
+     * @see search.SearchFunction#search(search.Problem, int)
+     */
+    public ArrayList search(Problem p, boolean returnExpansion) {
+        queue = new NodeQueue();
+        path = new ArrayList();
+        closed = new HashSet();
+        queue.addToFront(new SearchNode(p.getInitialState()));
+        Object nodeState;
+        int count = 0;
+        while (!(queue.isEmpty())) {
+            SearchNode n = queue.removeFirst();
+            nodeState = n.getState();
+
+            if (p.isGoalState(nodeState)) {
+            	
+            	// Return path only if in normal Mode
+                if (!returnExpansion)
+                    path = n.getPathFromRoot();
+                
+                // Done if goal found    
+                break;
+            }
+
+            of.addNodesToQueue(wrapStatesInNodes(n, p.getReachableStatesFrom(nodeState)), queue);
+            if (returnExpansion) {
+                Iterator it = queue.l.iterator();
+                while (it.hasNext()) {
+                    SearchNode pp = (SearchNode) it.next();
+                    //if (!path.contains(pp))
+                        path.add(pp);
+                }
+            }
+        }
+        return path;
+    }
+
+    protected ArrayList wrapStatesInNodes(SearchNode parentNode, ArrayList reachedStates) {
+        ArrayList retVal = new ArrayList();
+
+        for (int i = 0; i < reachedStates.size(); i++) {
+            Object state = reachedStates.get(i);
+            if (shouldEndExpansion(state, parentNode)) {
+                closed.add(state);
+                SearchNode aNode = new SearchNode(state, parentNode);
+                retVal.add(aNode);
+            }
+        }
+        return retVal;
+    }
+
+    /*******************************************************************************
+     *******************************************************************************
+     **  shouldEndExpansion
+     **  Function checks wheter the node has been vsited before or we reached 
+     **	 the maiximum depth
+     **
+     **  @param state
+     **  @param parent
+     **  @return 
+     **
+     *******************************************************************************
+     *******************************************************************************/
+    private boolean shouldEndExpansion(Object state, SearchNode parent) {
+        boolean shouldGoDeeper = true;
+        boolean stateSeenBefore = (!(closed.contains(state)));
+        if (maxDepth > 0) { 
+            shouldGoDeeper = (parent.getDepth() < (maxDepth + 1));
+        }
+        return (shouldGoDeeper && stateSeenBefore);
+    }
+
+    public ArrayList getPath() {
+        return path;
+    }
+
+    public HashSet getClosed() {
+        return closed;
+    }
+
+    public NodeQueue getQueue() {
+        return queue;
+    }
+}
