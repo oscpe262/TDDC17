@@ -3,7 +3,7 @@
 \section{Q1.}
 \em In the vacuum cleaner domain in part 1, what were the states and actions? What is the branching factor?\em
 
-\emph{A1.} Actions: Moving (4 directions), Cleaning dirt, Removing a node from [frontier].\\
+\emph{A1.} Actions: Moving (4 directions), Cleaning dirt.\\
     States: Positions in the grid\\
     Branching factor: 4 - maximal possible numbers of branches from a node.\\
 
@@ -50,7 +50,7 @@
     Are they optimal? Explain why!\em
 
     \emph{A6.}
-    
+
     \begin{tabular}{l|c|c}
       Algorithm & Complete & Optimal \\
       \hline
@@ -59,7 +59,8 @@
       Iterative-Deepening & Yes & Yes\\
       Bidirectional & BFS & No\\
       Greedy Best First & Graph & No\\
-      A* & Yes & Yes      
+      A* & Yes & Yes\\
+      Uniform Cost Search & Yes & Yes
     \end{tabular}
 
     BFS is complete if the branching factor is finite and there is a solution, and it is optimal if the cost
@@ -76,9 +77,10 @@
     For Greedy BFS, tree search is incomplete as it can get stuck in dead-end branches, but graph search is
     complete thanks to keeping track of explored noted.
 
-    A* is complete. It requires the existence of a finite number of paths where the cost equals that of the
-    optimal path. It is optimal if the heuristic function is admissable.
-    
+    A* is complete. It is optimal if the heuristic function is admissable.
+
+    Uniform Cost Search is a general form of BFS.
+
 \section{Q7.}
 \em Assume that you had to go back and do Lab 1/Task 2 once more (if you did not use search already).
     Remember that the agent did not have perfect knowledge of the environment but had to explore it
