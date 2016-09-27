@@ -36,20 +36,15 @@
   (:types shakey hand box lightswitch door toy room )
 
   (:predicates
-    (adj ?r1 ?r2 - room) ; rooms are next to each other
     (tin ?toy - toy ?r - room) ; toys in rooms
-    (tinh ?toy - toy ?h - hand) ; toy in hand
     (bin ?box - box ?r - room) ; boxes are in rooms as well
     (sin ?s - shakey ?r - room) ; shakey is in a room
 
     (lin ?lsw - lightswitch ?r - room) ; light switch in room
     (lon ?lsw - lightswitch ?r - room) ; light switch on/off
 
-    (holdl ?s - shakey ?t - toy) ; shakey has a left hand for toys
-    (holdr ?s - shakey ?t - toy) ; and a right hand as well
-    (busy1h ?left - hand) ; one hand busy
-    (busy2h ?right - hand) ; both hands busy
-    (swhand ?h1 ?h2 - hand) ; swap hands
+    (hold ?s - shakey ?t - toy ?h - hand) ; hold toy in designated hand
+    (hfull ?h - hand) ; hand is busy
 
     (Doorway ?d - door ?r1 ?r2 - room) ; a door between two rooms
     (iswide ?d - door) ; wide doorway
@@ -103,7 +98,7 @@
                     (bin ?box ?where)
                   )
     :effect (and
-              (not (lon ?l ?where))
+              (lon ?l ?where)
     )
   )
 
@@ -119,28 +114,45 @@
                     (bin ?box ?where)
                   )
     :effect (and
-              (lon ?l ?where)
+              (not (lon ?l ?where))
     )
   )
 
   (:action pickup
-    :parameters (
-      (?toy - toy)
-      (?who - shakey)
-      (?where - room)
-      (?h1 - hand)
-      (?h2 - hand)
+    :parameters (?toy - toy
+                 ?who - shakey
+                 ?where - room
+                 ?h - hand
+                 ?l - lightswitch
       )
     :precondition (and
                     (sin ?who ?where)
                     (tin ?toy ?where)
-                    (not (or (busy1h ?h1) (busy2h ?rh))) ; meh, rethink
+                    (lon ?l ?where)
+                    (not (hfull ?h))
                   )
     :effect (and
               (not (tin ?toy ?where))
-              (tinh ?)
-            )
+              (hold ?who ?toy ?h)
+              (hfull ?h)
+              )
     )
 
-
+  (:action putdown
+    :parameters (?toy - toy
+                 ?who - shakey
+                 ?where - room
+                 ?h - hand
+      )
+    :precondition (and
+                    (sin ?who ?where)
+                    (hold ?who ?toy ?h)
+                    (hfull ?h)
+      )
+    :effect (and
+              (not (hold ?who ?toy ?h))
+              (not (hfull ?h))
+              (tin ?toy ?where)
+      )
+    )
 )
