@@ -24,7 +24,7 @@ public class QLearningController extends Controller {
 	RocketEngine middleEngine;
 	RocketEngine rightEngine;
 
-	final static int NUM_ACTIONS = 7; /* The takeAction function must be changed if this is modified */
+	final static int NUM_ACTIONS = 8; /* The takeAction function must be changed if this is modified */
 	
 	/* Keep track of the previous state and action */
 	String previous_state = null;
@@ -37,11 +37,11 @@ public class QLearningController extends Controller {
 	Hashtable<String, Double> Qtable = new Hashtable<String, Double>(); /* Contains the Q-values - the state-action utilities */
 	Hashtable<String, Integer> Ntable = new Hashtable<String, Integer>(); /* Keeps track of how many times each state-action combination has been used */
 
-	/* PARAMETERS OF THE LEARNING ALGORITHM - THESE MAY BE TUNED BUT THE DEFAULT VALUES OFTEN WORK REASONABLY WELL  */
-	static final double GAMMA_DISCOUNT_FACTOR = 0.95; /* Must be < 1, small values make it very greedy */
-	static final double LEARNING_RATE_CONSTANT = 10; /* See alpha(), lower values are good for quick results in large and deterministic state spaces */
-	double explore_chance = 0.5; /* The exploration chance during the exploration phase */
-	final static int REPEAT_ACTION_MAX = 30; /* Repeat selected action at most this many times trying reach a new state, without a max it could loop forever if the action cannot lead to a new state */
+    /* PARAMETERS OF THE LEARNING ALGORITHM - THESE MAY BE TUNED BUT THE DEFAULT VALUES OFTEN WORK REASONABLY WELL  */
+    static final double GAMMA_DISCOUNT_FACTOR = 0.5; //.95 /* Must be < 1, small values make it very greedy */
+	static final double LEARNING_RATE_CONSTANT = 10; //10 /* See alpha(), lower values are good for quick results in large and deterministic state spaces */
+    double explore_chance = 0.3; /* The exploration chance during the exploration phase */
+    final static int REPEAT_ACTION_MAX = 10; /* Repeat selected action at most this many times trying reach a new state, without a max it could loop forever if the action cannot lead to a new state */
 
 	/* Some internal counters */
 	int iteration = 0; /* Keeps track of how many iterations the agent has run */
@@ -84,11 +84,53 @@ public class QLearningController extends Controller {
 
 	/* Performs the chosen action */
 	void performAction(int action) {
-
+	    
 		/* Fire zeh rockets! */
 		/* TODO: Remember to change NUM_ACTIONS constant to reflect the number of actions (including 0, no action) */
+	    switch (action){
+	    case 0:
+		resetRockets(); 
+		break; 
+	    case 1:
+		leftEngine.setBursting(true);
+		rightEngine.setBursting(false);
+		middleEngine.setBursting(false);
+		break; 
+	    case 2: 
+		leftEngine.setBursting(false);
+		rightEngine.setBursting(true);
+		middleEngine.setBursting(false);
+		break; 
+	    case 3: 
+		leftEngine.setBursting(false);
+		rightEngine.setBursting(false);
+		middleEngine.setBursting(true);
+		break; 
+	    case 4: 
+		leftEngine.setBursting(true);
+		rightEngine.setBursting(true);
+		middleEngine.setBursting(false);
+		break; 
+	    case 5:
+		leftEngine.setBursting(true);
+		rightEngine.setBursting(false);
+		middleEngine.setBursting(true);
+		break; 
+	    case 6: 
+		leftEngine.setBursting(false);
+		rightEngine.setBursting(true);
+		middleEngine.setBursting(true);
+		break; 
+	    case 7: 
+		leftEngine.setBursting(true);
+		rightEngine.setBursting(true);
+		middleEngine.setBursting(true);
+		break; 
+	    case 8:
 		
-		/* TODO: IMPLEMENT THIS FUNCTION */
+		break; 
+
+	    }
 		
 	}
 
@@ -97,14 +139,16 @@ public class QLearningController extends Controller {
 		iteration++;
 		
 		if (!paused) {
-			String new_state = StateAndReward.getStateAngle(angle.getValue(), vx.getValue(), vy.getValue());
+			String new_state = StateAndReward.getStateHover(angle.getValue(), vx.getValue(), vy.getValue());
+
+
 
 			/* Repeat the chosen action for a while, hoping to reach a new state. This is a trick to speed up learning on this problem. */
 			action_counter++;
 			if (new_state.equals(previous_state) && action_counter < REPEAT_ACTION_MAX) {
 				return;
 			}
-			double previous_reward = StateAndReward.getRewardAngle(previous_angle, previous_vx, previous_vy);
+			double previous_reward = StateAndReward.getRewardHover(previous_angle, previous_vx, previous_vy);
 			action_counter = 0;
 
 			/* The agent is in a new state, do learning and action selection */
@@ -124,7 +168,13 @@ public class QLearningController extends Controller {
 				} 
 
 				
+				
 				/* TODO: IMPLEMENT Q-UPDATE HERE! */
+
+				Qtable.put(prev_stateaction, 
+					   Qtable.get(prev_stateaction) + alpha(Ntable.get(prev_stateaction)) * ( previous_reward + GAMMA_DISCOUNT_FACTOR * getMaxActionQValue(new_state) - Qtable.get(prev_stateaction) )
+					   );
+				
 				
 				/* See top for constants and below for helper functions */
 				
@@ -140,6 +190,7 @@ public class QLearningController extends Controller {
 							" vy=" + df.format(vy.getValue()) + " P_STATE: " + previous_state + " P_ACTION: " + previous_action + 
 							" P_REWARD: " + df.format(previous_reward) + " P_QVAL: " + df.format(Qtable.get(prev_stateaction)) + " Tested: "
 							+ Ntable.get(prev_stateaction) + " times.");
+
 				}
 				
 				previous_vy = vy.getValue();

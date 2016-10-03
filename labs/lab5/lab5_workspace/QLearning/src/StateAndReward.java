@@ -1,23 +1,28 @@
 public class StateAndReward {
+    static final int ANGLE_VALS = 7;
+    static final int HOVER_VALS = 5;
 
-	
+
 	/* State discretization function for the angle controller */
 	public static String getStateAngle(double angle, double vx, double vy) {
 
 		/* TODO: IMPLEMENT THIS FUNCTION */
 
 		String state = "OneStateToRuleThemAll";
-		
-		return state;
+
+		int a = discretize(angle, ANGLE_VALS, -3, 3);
+		return a + "";
 	}
 
 	/* Reward function for the angle controller */
 	public static double getRewardAngle(double angle, double vx, double vy) {
 
 		/* TODO: IMPLEMENT THIS FUNCTION */
-		
-		double reward = 0;
-
+	    if (angle < -Math.PI/2 || angle > Math.PI/2 )
+		return 0.0; 
+	    double reward = 100*((Math.PI * Math.PI) - (angle * angle));
+	    //if (angle < 0) return 10 + angle;
+	    //	return 10 - angle;
 		return reward;
 	}
 
@@ -26,8 +31,12 @@ public class StateAndReward {
 
 		/* TODO: IMPLEMENT THIS FUNCTION */
 
-		String state = "OneStateToRuleThemAll2";
-		
+		// String state = "OneStateToRuleThemAll2";
+		int a = discretize(angle, ANGLE_VALS, -3, 3);
+		int b = discretize(vx, HOVER_VALS, -2, 2);
+		int c = discretize(vy, HOVER_VALS, -2, 2);
+		String state = a + ":" + b + ":" + c;
+
 		return state;
 	}
 
@@ -35,9 +44,10 @@ public class StateAndReward {
 	public static double getRewardHover(double angle, double vx, double vy) {
 
 		/* TODO: IMPLEMENT THIS FUNCTION */
-		
-		double reward = 0;
 
+		double reward = 0;
+		reward = 100/(vx*vx + vy*vy);
+		reward += getRewardAngle(angle, vx, vy);
 		return reward;
 	}
 
