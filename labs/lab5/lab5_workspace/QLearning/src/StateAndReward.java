@@ -1,6 +1,7 @@
 public class StateAndReward {
-    static final int ANGLE_VALS = 7;
-    static final int HOVER_VALS = 5;
+    static final int ANGLE_VALS = 11; //19;
+    static final int HOVER_VALS = 4;
+    static final int HOVER_VALS_X = 3;
 
 
 	/* State discretization function for the angle controller */
@@ -10,31 +11,26 @@ public class StateAndReward {
 
 		String state = "OneStateToRuleThemAll";
 
-		int a = discretize(angle, ANGLE_VALS, -3, 3);
+		int a = discretize(angle, ANGLE_VALS, -Math.PI/5, Math.PI/5);
 		return a + "";
 	}
 
 	/* Reward function for the angle controller */
 	public static double getRewardAngle(double angle, double vx, double vy) {
 
-		/* TODO: IMPLEMENT THIS FUNCTION */
-	    if (angle < -Math.PI/2 || angle > Math.PI/2 )
-		return 0.0; 
-	    double reward = 100*((Math.PI * Math.PI) - (angle * angle));
-	    //if (angle < 0) return 10 + angle;
-	    //	return 10 - angle;
+	
+	    double reward = 2*((Math.PI * Math.PI) - (angle * angle));
+
 		return reward;
 	}
 
 	/* State discretization function for the full hover controller */
 	public static String getStateHover(double angle, double vx, double vy) {
 
-		/* TODO: IMPLEMENT THIS FUNCTION */
-
-		// String state = "OneStateToRuleThemAll2";
-		int a = discretize(angle, ANGLE_VALS, -3, 3);
-		int b = discretize(vx, HOVER_VALS, -2, 2);
-		int c = discretize(vy, HOVER_VALS, -2, 2);
+	    String a // = discretize(angle, ANGLE_VALS, -Math.PI, Math.PI);
+		= getStateAngle(angle, vx, vy); 
+	    int b = discretize2(vx, HOVER_VALS_X, -0.7, 0.7);
+	    int c = discretize2(vy, HOVER_VALS, -0.8, 2);
 		String state = a + ":" + b + ":" + c;
 
 		return state;
@@ -46,7 +42,7 @@ public class StateAndReward {
 		/* TODO: IMPLEMENT THIS FUNCTION */
 
 		double reward = 0;
-		reward = 100/(vx*vx + vy*vy);
+		reward = ( Math.PI * Math.PI )/Math.pow(2,(Math.sqrt( Math.abs(vx) * Math.abs(vx) + Math.abs(vy) * Math.abs(vy) ) ));
 		reward += getRewardAngle(angle, vx, vy);
 		return reward;
 	}

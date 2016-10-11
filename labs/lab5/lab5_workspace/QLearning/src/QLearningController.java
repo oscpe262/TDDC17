@@ -24,7 +24,7 @@ public class QLearningController extends Controller {
 	RocketEngine middleEngine;
 	RocketEngine rightEngine;
 
-	final static int NUM_ACTIONS = 8; /* The takeAction function must be changed if this is modified */
+	final static int NUM_ACTIONS = 4; /* The takeAction function must be changed if this is modified */
 	
 	/* Keep track of the previous state and action */
 	String previous_state = null;
@@ -38,10 +38,10 @@ public class QLearningController extends Controller {
 	Hashtable<String, Integer> Ntable = new Hashtable<String, Integer>(); /* Keeps track of how many times each state-action combination has been used */
 
     /* PARAMETERS OF THE LEARNING ALGORITHM - THESE MAY BE TUNED BUT THE DEFAULT VALUES OFTEN WORK REASONABLY WELL  */
-    static final double GAMMA_DISCOUNT_FACTOR = 0.5; //.95 /* Must be < 1, small values make it very greedy */
-	static final double LEARNING_RATE_CONSTANT = 10; //10 /* See alpha(), lower values are good for quick results in large and deterministic state spaces */
+    static final double GAMMA_DISCOUNT_FACTOR = 0.8; //.95 /* Must be < 1, small values make it very greedy */
+    static final double LEARNING_RATE_CONSTANT = 50; //10 /* See alpha(), lower values are good for quick results in large and deterministic state spaces */
     double explore_chance = 0.3; /* The exploration chance during the exploration phase */
-    final static int REPEAT_ACTION_MAX = 10; /* Repeat selected action at most this many times trying reach a new state, without a max it could loop forever if the action cannot lead to a new state */
+    final static int REPEAT_ACTION_MAX = 45; /* Repeat selected action at most this many times trying reach a new state, without a max it could loop forever if the action cannot lead to a new state */
 
 	/* Some internal counters */
 	int iteration = 0; /* Keeps track of how many iterations the agent has run */
@@ -89,7 +89,7 @@ public class QLearningController extends Controller {
 		/* TODO: Remember to change NUM_ACTIONS constant to reflect the number of actions (including 0, no action) */
 	    switch (action){
 	    case 0:
-		resetRockets(); 
+		resetRockets();
 		break; 
 	    case 1:
 		leftEngine.setBursting(true);
@@ -101,34 +101,35 @@ public class QLearningController extends Controller {
 		rightEngine.setBursting(true);
 		middleEngine.setBursting(false);
 		break; 
-	    case 3: 
-		leftEngine.setBursting(false);
-		rightEngine.setBursting(false);
-		middleEngine.setBursting(true);
-		break; 
-	    case 4: 
+
+			    case 3: 
 		leftEngine.setBursting(true);
 		rightEngine.setBursting(true);
 		middleEngine.setBursting(false);
+		break; /*
+			    case 4: 
+		leftEngine.setBursting(false);
+		rightEngine.setBursting(false);
+		middleEngine.setBursting(true);
 		break; 
-	    case 5:
+			    case 5:
 		leftEngine.setBursting(true);
 		rightEngine.setBursting(false);
 		middleEngine.setBursting(true);
 		break; 
-	    case 6: 
+			    case 6: 
 		leftEngine.setBursting(false);
 		rightEngine.setBursting(true);
 		middleEngine.setBursting(true);
 		break; 
-	    case 7: 
+			    case 7: 
 		leftEngine.setBursting(true);
 		rightEngine.setBursting(true);
 		middleEngine.setBursting(true);
 		break; 
-	    case 8:
-		
-		break; 
+		/*	    case 4:
+		resetRockets(); 
+		break; */
 
 	    }
 		
