@@ -1,15 +1,52 @@
+
 \section{Part II}
-\begin{framed}
-  \em In the report describe your choices of state and reward functions, and describe in your own words the purpose of the different components in the Q-learning update that you implemented. \em
-\end{framed}
 
-\begin{framed}
-  \em Try turning off exploration from the start before learning. What tends to happen? Explain why this happens in your report. \em
-\end{framed}
+For Part II, there is only one task-specific question: \emph{"What tends to happen if we try turning off exploration before learning, and why?"}
 
+Turning exploration off with angle-based reward only, usually results in the rocket doing nothing and dropping straight down as firing rockets will tilt the rocket resulting in a lower reward.
 
 \section{Part III}
+\emph{"Describe your choices of state and reward functions, and describe in your own words the purpose of the different components in the Q-learning update that you implemented."}
 
-\begin{framed} \em
-  Demonstrate your solution to the lab assistant and hand in a report describing your solutions to part II and III, including the two questions in part II. As it can be difficult and time consuming to get perfect hover behavior we are fairly lenient as long as it can be seen that it is at least trying.\em
-  \end{framed}
+\subsection{States and rewards}
+\subsubsection{States}
+Defining the state space is non-trivial. A large state space gives the possibility of learning more accurate and specific behaviours but at an increasing time and space cost. However, reasonably good results can be achieved already with a small state space. We went with a larger state space than necessary to achieve a result \emph{we} were satisfied with, and still within the task's soft-cap of 500 000 iterations.
+
+The state space is a combination of three variables (for Part III, part II has states based on angles alone): speeds in two dimensions, and the rocket's angle. The function \verb=discretize= offers a set of "buckets" into which we can drop intervals of values. This is used to define the states.
+
+For the angle, we went with a larger set of buckets as even very small variations in the angle gives large deviations in lateral speed when activating the thrusters. This set of buckets were then distributed over a fairly small angle range. This results in the rocket having issues coping accurately with large deviations, but being "very" stable once hovering.
+
+The speed states were defined to a small interval with smaller sets, with the y-axis velocity interval being biased towards positive velocity. This in order to limit the state space while maintaining reasonable precision.
+
+\subsubsection{Rewards}
+The reward system could be implemented in various ways with similar outcomes. We decided to go with a model with exponentially increased reward the closer to a perfect hover we come.
+
+We wished for the angle to be pointing upwards, as the propulsion and gravitation combination makes a hover upside-down unlikely for longer periods of time. Therefore, \verb=getRewardAngle= will return the reward $r$ as a function of $\alpha$:
+
+$$ r_{\alpha} = \pi^{\pi} - \pi^{|\alpha|} $$
+
+For Part III, we need also take the velocities into consideration. We do this by multiplying the inverse sum of the velocities $v_x,v_y$ (plus a small value to avoid division by zero) with the angle reward from \verb=getRewardAngle=:
+
+$$ r_{v} = \frac{1}{|v_x|+|v_y|+0.0001}*r_{\alpha} \Leftrightarrow r_v = \frac{r_{\alpha}}{|v_x|+|v_y|+0.0001} $$
+
+\subsection{Q-learning update}
+\lstset{language=Java,numbers=left,breaklines=true,breakatwhitespace=true,keepspaces=true}
+\begin{lstlisting}
+Qtable.put(
+  prev_stateaction,
+  Qtable.get(prev_stateaction)
+    + alpha(Ntable.get(prev_stateaction))
+    * ( previous_reward +
+    GAMMA_DISCOUNT_FACTOR * getMaxActionQValue(new_state)
+    - Qtable.get(prev_stateaction) )
+  );
+\end{lstlisting}
+
+foo
+$$ Q(s_t,a_t) \rightarrow Q(s_t,a_t)+\alpha \left(r_{t+1}+\gamma\cdot\max_a Q(s_{t+1},a) - Q(s_t,a_t)\right) $$
+% describe in your own words the purpose of the different components in the Q-learning update that you implemented
+In \verb=Qtable= we store a $Q$-value along with the states and actions resulting in the $Q$-value. We update these $Q$ values over time by adding (3+) what we've just learned.
+
+The factor \verb=alpha= is based on the learning-rate constant and number of iterations of the state-action combination, resulting in each iteration of the combination being less valuable than the previous iteration. A smaller constant lets us converge to a behavoiur faster, but with a large state space, we risk---just like the comments states---ending up with a poor result if the state space is not explored properly.
+
+The $\gamma$-factor defines the importance of future rewards for learning. A low value will cause "short-sightedness", and a higher will aim for high long-term rewards.

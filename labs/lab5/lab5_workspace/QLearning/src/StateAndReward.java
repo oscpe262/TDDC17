@@ -1,50 +1,41 @@
 public class StateAndReward {
-    static final int ANGLE_VALS = 11; //19;
-    static final int HOVER_VALS = 4;
-    static final int HOVER_VALS_X = 3;
+    static final int ANGLE_VALS = 19;
+    static final int HOVER_VALSX = 5;
+    static final int HOVER_VALSY = 5;
 
 
 	/* State discretization function for the angle controller */
-	public static String getStateAngle(double angle, double vx, double vy) {
+  public static String getStateAngle(double angle, double vx, double vy) {
 
-		/* TODO: IMPLEMENT THIS FUNCTION */
+		int iangle = discretize(angle, ANGLE_VALS, (-(Math.PI/7)), (Math.PI/7) );
+		String state = iangle + "";
 
-		String state = "OneStateToRuleThemAll";
+		return state;
 
-		int a = discretize(angle, ANGLE_VALS, -Math.PI/5, Math.PI/5);
-		return a + "";
-	}
+  }
 
 	/* Reward function for the angle controller */
 	public static double getRewardAngle(double angle, double vx, double vy) {
 
-	
-	    double reward = 2*((Math.PI * Math.PI) - (angle * angle));
+    return (Math.pow(Math.PI, Math.PI) - Math.pow(Math.PI, Math.abs(angle)));
 
-		return reward;
 	}
 
 	/* State discretization function for the full hover controller */
 	public static String getStateHover(double angle, double vx, double vy) {
 
-	    String a // = discretize(angle, ANGLE_VALS, -Math.PI, Math.PI);
-		= getStateAngle(angle, vx, vy); 
-	    int b = discretize2(vx, HOVER_VALS_X, -0.7, 0.7);
-	    int c = discretize2(vy, HOVER_VALS, -0.8, 2);
-		String state = a + ":" + b + ":" + c;
+		int AngleState = discretize(angle, ANGLE_VALS, (-(Math.PI/7)), (Math.PI/7) );
+		int XState = discretize(vx, HOVER_VALSX, -1.5,1.5);
+		int YState = discretize(vy, HOVER_VALSY, -0.5,1);
+		return AngleState + ":" + XState + ":" + YState;
 
-		return state;
 	}
 
 	/* Reward function for the full hover controller */
 	public static double getRewardHover(double angle, double vx, double vy) {
 
-		/* TODO: IMPLEMENT THIS FUNCTION */
+    return ((getRewardAngle(angle, vx, vy))/(Math.abs(vx)+Math.abs(vy)+0.0001));
 
-		double reward = 0;
-		reward = ( Math.PI * Math.PI )/Math.pow(2,(Math.sqrt( Math.abs(vx) * Math.abs(vx) + Math.abs(vy) * Math.abs(vy) ) ));
-		reward += getRewardAngle(angle, vx, vy);
-		return reward;
 	}
 
 	// ///////////////////////////////////////////////////////////
