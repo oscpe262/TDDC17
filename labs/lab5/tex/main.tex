@@ -16,7 +16,7 @@ The state space is a combination of three variables (for Part III, part II has s
 
 For the angle, we went with a larger set of buckets as even very small variations in the angle gives large deviations in lateral speed when activating the thrusters. This set of buckets were then distributed over a fairly small angle range. This results in the rocket having issues coping accurately with large deviations, but being "very" stable once hovering.
 
-The speed states were defined to a small interval with smaller sets, with the y-axis velocity interval being biased towards positive velocity. This in order to limit the state space while maintaining reasonable precision.
+As it turns out, due to gravity, accelerating downwards happens much more easily than upwards. The speed states were defined to a small interval with smaller sets, with the y-axis velocity interval being biased towards positive velocity. This in order to limit the state space while maintaining reasonable precision.
 
 \subsubsection{Rewards}
 The reward system could be implemented in various ways with similar outcomes. We decided to go with a model with exponentially increased reward the closer to a perfect hover we come.
