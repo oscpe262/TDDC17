@@ -1,0 +1,28 @@
+shakey toy problem
+
+A problem with our standard layout, four toys in room two and one toy in room three, was used for this experiment. The goal was to gather all toys in room one and make sure all lights were turned off. We kept adding toys in room two that were also to be gathered in room one. We also tried adding narrow doors inbetween room one and two. FF and IPP were run on these configurations to compare differences in time taken to solve the problem. 
+		
+Toys	Room1 Doors	FF (s) 	IPP (s) 
+5 	1		0	4.05
+6	1		0.04	14.70
+7	1		0.10	130.16
+8	1		0.30	*
+
+5	2		0	4.35
+6	2		0.04	16.64
+7	2		0.10	142.10
+8	2		0.30	*
+
+5	3		0	4.62
+6	3		0.04	16.98
+7	3		0.10	146.01
+8	3		0.30	*
+
+5	4		0	4.62
+6	4		0.04	17.21
+7	4		0.10	149.25
+8	4		0.31	*
+
+*did not finish within 5 minutes
+
+Adding toys makes both FF and IPP take exponentially longer time to complete. IPP at a faster rate than FF. The difference between 6 and adding a 7th toy for IPP results in a ten times time increase, whereas for FF it takes roughly three times longer for seven toys. Adding doors doesn't noticeably impact the efficience of FF. IPP gets marginally slower with more doors. Note that this increase in time is never more than just a few percent. 
